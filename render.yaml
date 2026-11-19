@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: clear-air-coach
+    runtime: node
+    plan: free
+    buildCommand: echo "no build step"
+    startCommand: node server.js
+    healthCheckPath: /api/status
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false   # paste your key in the Render dashboard; never commit it
+      - key: TRUST_PROXY
+        value: "1"
+      - key: NODE_VERSION
+        value: "22"

@@ -45,3 +45,9 @@ Air data is model-based (CAMS via Open-Meteo), not a certified monitor. Impact n
 ## Testing
 
 `npm test` starts the server on port 3999 and checks: static assets and security headers, path traversal, real geocoding, live plan (air, weather, forecast, outlook freshness), manual readings, input validation and size limits, hostile input, Groq personalisation, translation, streaming chat, letters, photo analysis, and rate limiting. Groq's free tier is token-limited per minute, so the app falls back from the 120B to the 20B model when busy and the tests retry politely.
+
+## Deploy
+
+**Render (free, ~3 minutes):** New → *Blueprint* → pick this repo (it reads `render.yaml`) → set `GROQ_API_KEY` → Deploy. You get an HTTPS URL, which the PWA, geolocation, voice and notifications all need.
+
+**Anywhere with Docker** (Railway, Fly.io, Google Cloud Run, Azure, a VPS): `docker build -t clear-air . && docker run -p 3000:3000 -e GROQ_API_KEY=... -e TRUST_PROXY=1 clear-air`. Set `TRUST_PROXY=1` behind any load balancer so rate limits apply per visitor, not per proxy. Health check: `/api/status`.

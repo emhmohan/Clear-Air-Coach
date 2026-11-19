@@ -36,7 +36,9 @@ async function readBody(req, limit = 100_000) {
 // ---- rate limit (per IP, sliding minute) and tiny TTL cache ----
 const hits = new Map();
 function limited(req, max = 40) {
-  const ip = req.socket.remoteAddress || 'x', now = Date.now();
+  // behind a host's proxy every request shares one socket IP, so use the forwarded client IP when TRUST_PROXY is set
+  const fwd = process.env.TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '';
+  const ip = fwd || req.socket.remoteAddress || 'x', now = Date.now();
   const arr = (hits.get(ip) || []).filter((t) => now - t < 60_000);
   arr.push(now); hits.set(ip, arr);
   return arr.length > max;

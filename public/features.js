@@ -16,7 +16,7 @@ $('lang').onchange = () => { state.lang = $('lang').value; store.set('cac.lang',
 /* ---------- scenarios ---------- */
 const SCEN = [[null, 'Live data'], [20, '20'], [60, '60'], [150, '150'], [320, '320']];
 function drawScen() {
-  $('scenarios').innerHTML = SCEN.map(([v, n]) => `<button class="chip ${state.scenario === v ? 'on' : ''}" data-s="${v}">${n}</button>`).join('');
+  $('scenarios').innerHTML = SCEN.map(([v, n]) => `<button class="chip ${state.scenario === v ? 'on' : ''}" data-s="${v}" aria-pressed="${state.scenario === v}">${v == null ? n : 'PM2.5 ' + n}</button>`).join('');
 }
 $('scenarios').onclick = (e) => { const s = e.target.dataset.s; if (s === undefined) return; state.scenario = s === 'null' ? null : Number(s); drawScen(); load(); };
 

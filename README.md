@@ -2,6 +2,18 @@
 
 A Groq-powered GenAI assistant that helps families and communities get through severe winter smog: live air data, low-emission routines, indoor air hacks, sustainable swaps, and a plain explanation of the **direct impact** of every choice.
 
+## Challenge alignment: Urban Air Quality Assistant
+
+| Requirement | How Clear Air Coach delivers it |
+|---|---|
+| **GenAI-powered assistant** | Groq-hosted LLMs write the personalised summary, tailor every action, answer questions (streaming chat), translate plans into 14 languages, analyse photos (vision) and draft advocacy letters |
+| **Severe winter smog and urban pollution** | Live PM2.5/PM10/NO₂/O₃/SO₂/CO, WHO-guideline multiples, and weather-based **inversion detection** (mixing height and wind), the physical cause of winter smog |
+| **Low-emission daily routines** | Cleanest-hour planner from the hourly forecast, traffic-light activity guide, 5-day outlook, daily routine timeline |
+| **Indoor air quality hacks** | Inside-vs-outside estimates, purifier (CADR) calculator, DIY Corsi-Rosenthal box, room-by-room guide, cooking and heating advice, Smog Lens photo check |
+| **Sustainable alternatives** | Heating swaps, transit/carpool with CO₂ saved, no-idling and community actions |
+| **Tailored to location and lifestyle** | City or GPS location; profile covers children, elders, asthma, pregnancy, heating, cooking, commute, budget |
+| **Explains the direct impact of choices** | Every action shows *impact* (what changes, by how much), *why it works* and *cost*; the what-if simulator quantifies combined effects |
+
 ## Features
 
 | Area | What it does |
@@ -24,7 +36,8 @@ A Groq-powered GenAI assistant that helps families and communities get through s
 ```bash
 cp .env.example .env        # then put your key in GROQ_API_KEY (free at console.groq.com)
 node server.js              # http://localhost:3000
-npm test                    # 5 engine unit tests + 13 end-to-end tests (real Open-Meteo and Groq calls)
+npm test                    # engine, accessibility and live end-to-end tests (real Open-Meteo and Groq)
+npm run lint                # ESLint
 ```
 
 PowerShell without a `.env`: `$env:GROQ_API_KEY="gsk_..."; node server.js`. Docker: `docker build -t clear-air . && docker run -p 3000:3000 -e GROQ_API_KEY=gsk_... clear-air`.

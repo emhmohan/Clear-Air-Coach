@@ -16,7 +16,7 @@ const LEVELS = [[9, '#2e9e5b'], [35.4, '#c9a400'], [55.4, '#e67e22'], [125.4, '#
 const levelColor = (pm) => LEVELS.find((l) => pm <= l[0])[1];
 const today = () => new Date().toISOString().slice(0, 10);
 
-let state = { profile: store.get('cac.profile', null), place: store.get('cac.place', null), manual: store.get('cac.manual', ''), data: null, cat: 'all', history: [], lang: store.get('cac.lang', 'en'), scenario: null };
+const state = { profile: store.get('cac.profile', null), place: store.get('cac.place', null), manual: store.get('cac.manual', ''), data: null, cat: 'all', history: [], lang: store.get('cac.lang', 'en'), scenario: null };
 
 /* ---------- helpers ---------- */
 async function api(path, body) {
@@ -34,24 +34,34 @@ $('theme').onclick = () => applyTheme(document.documentElement.dataset.theme ===
 
 function show(v) {
   document.querySelectorAll('.view').forEach((s) => s.classList.toggle('on', s.id === 'v-' + v));
-  document.querySelectorAll('.side [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+  document.querySelectorAll('.side [data-v]').forEach((b) => { const on = b.dataset.v === v; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   window.scrollTo({ top: 0 });
+  const h = document.querySelector('#v-' + v + ' h2'); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); } // move focus into the new page for keyboard and screen-reader users
 }
 document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) show(b.dataset.v); });
 $('aboutLink').onclick = (e) => { e.preventDefault(); show('about'); };
 
 /* ---------- onboarding ---------- */
-let step = 1, draft = {};
+let step = 1, draft = {}, opener = null;
+function closeModal() { $('modal').classList.add('hidden'); if (opener && opener.focus) opener.focus(); }
+document.addEventListener('keydown', (e) => {
+  if ($('modal').classList.contains('hidden')) return;
+  if (e.key === 'Escape' && state.profile) return closeModal();
+  if (e.key !== 'Tab') return; // keep focus inside the dialog
+  const f = [...$('modal').querySelectorAll('button,input,select,[tabindex]:not([tabindex="-1"])')].filter((x) => x.offsetParent !== null && !x.disabled);
+  if (!f.length) return;
+  if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+});
 const BOOL = ['kids', 'elders', 'asthma', 'pregnant', 'exercise', 'purifier'];
 function openModal() {
   const p = state.profile || {};
   draft = { ...p };
-  document.querySelectorAll('.chip[data-k]').forEach((c) => c.classList.toggle('on', !!p[c.dataset.k]));
+  document.querySelectorAll('.chip[data-k]').forEach((c) => { c.classList.toggle('on', !!p[c.dataset.k]); c.setAttribute('aria-pressed', !!p[c.dataset.k]); });
   ['heating', 'cooking', 'commute', 'budget'].forEach((k) => { if (p[k]) $(k).value = p[k]; });
   if (p.commuteKm != null) $('km').value = p.commuteKm;
   $('note').value = p.note || ''; $('manual').value = state.manual || '';
   $('picked').textContent = state.place ? '📍 ' + state.place.label : '';
-  step = 1; paintStep(); $('modal').classList.remove('hidden');
+  step = 1; paintStep(); $('modal').classList.remove('hidden'); opener = document.activeElement; setTimeout(() => $('q').focus(), 30);
 }
 function paintStep() {
   [1, 2, 3].forEach((n) => $('step' + n).classList.toggle('hidden', n !== step));
@@ -59,7 +69,7 @@ function paintStep() {
   $('back').style.visibility = step === 1 ? 'hidden' : 'visible';
   $('next').textContent = step === 3 ? 'Build my plan' : 'Next'; $('err').textContent = '';
 }
-document.querySelectorAll('.chip[data-k]').forEach((c) => (c.onclick = () => c.classList.toggle('on')));
+document.querySelectorAll('.chip[data-k]').forEach((c) => { c.setAttribute('aria-pressed', 'false'); c.onclick = () => { c.classList.toggle('on'); c.setAttribute('aria-pressed', c.classList.contains('on')); }; });
 $('back').onclick = () => { step--; paintStep(); };
 $('next').onclick = async () => {
   if (step === 1) {
@@ -73,7 +83,7 @@ $('next').onclick = async () => {
   p.commuteKm = Math.max(0, Number($('km').value) || 0); p.note = $('note').value.trim();
   state.profile = p; state.manual = $('manual').value;
   store.set('cac.profile', p); store.set('cac.place', state.place); store.set('cac.manual', state.manual);
-  $('modal').classList.add('hidden'); load();
+  closeModal(); load();
 };
 $('profileBtn').onclick = openModal;
 
@@ -104,7 +114,7 @@ $('geo').onclick = () => {
 /* ---------- loading ---------- */
 async function load() {
   if (!state.profile) return openModal();
-  $('loading').classList.remove('hidden'); $('banner').classList.add('hidden');
+  $('loading').classList.remove('hidden'); $('banner').classList.add('hidden'); $('main').setAttribute('aria-busy', 'true');
   try {
     const body = { profile: state.profile, note: state.profile.note, manualPm25: state.scenario ?? state.manual, lang: state.lang };
     if (state.place) Object.assign(body, { lat: state.place.lat, lon: state.place.lon, place: state.place.short });
@@ -118,7 +128,7 @@ async function load() {
     if (cached) { state.data = cached.data; renderAll(); banner('Offline or data unavailable (' + esc(e.message) + '). Showing your last plan from ' + new Date(cached.at).toLocaleString() + '.'); }
     else { banner(esc(e.message) + ' <button class="btn soft" id="retry">Edit location</button>'); const r = $('retry'); if (r) r.onclick = openModal; }
   }
-  $('loading').classList.add('hidden');
+  $('loading').classList.add('hidden'); $('main').setAttribute('aria-busy', 'false');
 }
 function banner(html) { $('banner').innerHTML = `<span>${html}</span>`; $('banner').classList.remove('hidden'); }
 $('refresh').onclick = () => { load(); toast('Refreshing…'); };
@@ -129,7 +139,7 @@ function renderAll() { renderToday(); renderPlan(); renderIndoor(); renderCommun
 
 function gauge(pm, color) {
   const len = Math.PI * 80, fill = Math.min(pm / 250, 1) * len;
-  return `<div class="gauge"><svg viewBox="0 0 200 110" aria-hidden="true"><path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--surface2)" stroke-width="16" stroke-linecap="round"/><path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="${color}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${fill} ${len}"/></svg><div class="val"><b>${esc(pm)}</b><span>PM2.5 µg/m³</span></div></div>`;
+  return `<div class="gauge" role="img" aria-label="PM2.5 ${esc(pm)} micrograms per cubic metre"><svg viewBox="0 0 200 110" aria-hidden="true"><path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--surface2)" stroke-width="16" stroke-linecap="round"/><path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="${color}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${fill} ${len}"/></svg><div class="val"><b>${esc(pm)}</b><span>PM2.5 µg/m³</span></div></div>`;
 }
 
 function renderToday() {
@@ -164,6 +174,8 @@ function drawChart(fc, win) {
     if (i % 3 === 0) out += `<text x="${x + bw / 2}" y="${H - 7}" font-size="10" text-anchor="middle" fill="var(--mute)">${h.time.slice(11, 13)}h</text>`;
   });
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = out;
+  const lo = fc.reduce((a, b) => (b.pm25 < a.pm25 ? b : a)), hi = fc.reduce((a, b) => (b.pm25 > a.pm25 ? b : a));
+  svg.setAttribute('aria-label', `Hourly PM2.5 forecast for the next ${fc.length} hours. Lowest ${lo.pm25} at ${lo.time.slice(11, 16)}, highest ${hi.pm25} at ${hi.time.slice(11, 16)} micrograms per cubic metre.`);
   $('legend').innerHTML = [['Good', '#2e9e5b'], ['Moderate', '#c9a400'], ['Sensitive', '#e67e22'], ['Unhealthy', '#d93a3a'], ['Very unhealthy+', '#8e3fa8']].map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join('') + '<span>▭ outlined = best window</span>';
 }
 
@@ -178,13 +190,13 @@ function allActions() {
   return [...f.actions.map((a) => ({ ...a, ...(tr[a.id] && { title: tr[a.id].title || a.title, detail: tr[a.id].detail || a.detail, why: tr[a.id].why || a.why }) })), ...extra];
 }
 function renderPlan() {
-  $('catChips').innerHTML = CATS.map(([k, n]) => `<button class="chip ${state.cat === k ? 'on' : ''}" data-c="${k}">${n}</button>`).join('');
+  $('catChips').innerHTML = CATS.map(([k, n]) => `<button class="chip ${state.cat === k ? 'on' : ''}" data-c="${k}" aria-pressed="${state.cat === k}">${n}</button>`).join('');
   $('catChips').onclick = (e) => { if (e.target.dataset.c) { state.cat = e.target.dataset.c; renderPlan(); } };
   const ai = state.data.ai, all = allActions(), done = doneSet();
   const pct = all.length ? Math.round(all.filter((a) => done.has(a.id)).length / all.length * 100) : 0;
   $('ringArc').setAttribute('stroke-dasharray', `${pct} ${100 - pct}`); $('ringTxt').textContent = pct + '%';
   $('planList').innerHTML = all.filter((x) => state.cat === 'all' || x.category === state.cat).map((x) => `<div class="plan-item ${done.has(x.id) ? 'done' : ''}" data-id="${esc(x.id)}">
-    <button class="check" aria-label="Mark done" aria-pressed="${done.has(x.id)}">✓</button>
+    <button class="check" aria-label="Mark as done: ${esc(x.title)}" aria-pressed="${done.has(x.id)}">✓</button>
     <div><h3>${esc(x.title)}<span class="tag">${esc(x.category)}</span>${x.extra ? '<span class="tag">AI tip</span>' : ''}</h3>
     <div>${esc(x.detail)}</div>${ai?.personalized?.[x.id] ? `<div class="ai-line">${esc(ai.personalized[x.id])}</div>` : ''}
     <div class="impact"><b>${esc(x.impact.label)}:</b> ${esc(x.impact.value)}${x.impact.note ? ` <span class="note">(${esc(x.impact.note)})</span>` : ''}</div>

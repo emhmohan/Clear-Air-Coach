@@ -1,0 +1,16 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Lint
+        run: npx --yes eslint@9 .
+      - name: Tests (engine, accessibility, live-data integration)
+        run: npm test
+        env:
+          # optional: enables the Groq-backed tests; they are skipped when no key is set
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}

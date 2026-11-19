@@ -48,6 +48,31 @@ test('static assets served with security headers; traversal blocked', async () =
   assert.equal((await fetch(BASE + '/.env')).status, 404);
 });
 
+test('responses are gzip-compressed with ETag revalidation', async () => {
+  const r = await fetch(BASE + '/app.js', { headers: { 'accept-encoding': 'gzip' } });
+  assert.equal(r.headers.get('content-encoding'), 'gzip');
+  const etag = r.headers.get('etag'); assert.ok(etag);
+  assert.equal((await fetch(BASE + '/app.js', { headers: { 'if-none-match': etag } })).status, 304);
+  assert.equal((await fetch(BASE + '/api/status', { headers: { 'accept-encoding': 'gzip' } })).headers.get('cache-control'), 'no-store');
+});
+
+test('hardened headers and method handling', async () => {
+  const r = await fetch(BASE + '/');
+  const csp = r.headers.get('content-security-policy');
+  for (const d of ["object-src 'none'", "frame-ancestors 'none'", "base-uri 'self'"]) assert.ok(csp.includes(d), d);
+  assert.ok(r.headers.get('permissions-policy').includes('camera=()'));
+  assert.equal((await fetch(BASE + '/', { method: 'PUT' })).status, 405);
+  assert.equal((await fetch(BASE + '/%E0%A4%A')).status, 400);
+});
+
+test('coordinates are range-checked and the profile is whitelisted', async () => {
+  assert.equal((await post('/api/plan', { lat: 999, lon: 10, profile })).status, 400);
+  assert.equal((await post('/api/plan', { lat: 'x', lon: 10, profile })).status, 400);
+  const r = await (await post('/api/plan', { manualPm25: 60, profile: { heating: '<script>', commute: 'rocket', commuteKm: 1e9, kids: 'yes' } })).json();
+  assert.equal(r.facts.air.pm25, 60);
+  assert.ok(!JSON.stringify(r.facts).includes('<script>'));
+});
+
 test('geocoding returns real places', async () => {
   const r = await (await fetch(BASE + '/api/geocode?q=Delhi')).json();
   assert.ok(r.length > 0 && Math.abs(r[0].lat - 28.6) < 1 && Math.abs(r[0].lon - 77.2) < 1, JSON.stringify(r[0]));

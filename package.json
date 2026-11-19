@@ -1,0 +1,8 @@
+{
+  "name": "clear-air-coach",
+  "version": "2.0.0",
+  "description": "Groq-powered assistant for low-emission routines and indoor air quality during winter smog",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node --test" },
+  "engines": { "node": ">=18" }
+}

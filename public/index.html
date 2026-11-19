@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clear Air Coach</title>
+<meta name="description" content="Winter smog plans for families: live air quality, low-emission routines, indoor air hacks and the real impact of each choice.">
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="top-in">
+  <div class="logo"><img src="/icon.svg" alt=""><span>Clear Air Coach</span></div>
+  <nav class="nav" id="nav">
+    <button data-v="today" class="on">Today</button><button data-v="plan">My plan</button><button data-v="indoor">Indoor air</button><button data-v="impact">Impact</button><button data-v="community">Community</button><button data-v="ask">Ask coach</button>
+  </nav>
+  <select id="lang" class="icon-btn" style="width:auto;padding:0 8px" title="Language" aria-label="Language"></select>
+  <button class="icon-btn" id="refresh" title="Refresh air data" aria-label="Refresh">⟳</button>
+  <button class="icon-btn" id="profileBtn" title="Edit profile" aria-label="Edit profile">⚙</button>
+  <button class="icon-btn" id="theme" title="Toggle theme" aria-label="Toggle theme">◐</button>
+</div></header>
+
+<main id="main">
+  <div id="loading" class="skeleton hidden"></div>
+  <div id="banner" class="banner hidden" style="margin-bottom:14px"></div>
+
+  <!-- TODAY -->
+  <section class="view on" id="v-today">
+    <div class="card" style="padding:12px 16px"><div class="row" style="flex-wrap:wrap;align-items:center"><b class="note" style="margin-right:4px">Simulate smog (what if PM2.5 were…)</b><div class="chips" id="scenarios" style="margin:0"></div><span style="flex:1"></span><button class="btn soft" id="speak">🔊 Read aloud</button><button class="btn soft" id="notify">🔔 Alerts</button></div></div>
+    <div class="card hero" id="hero"></div>
+    <div class="stats" id="stats"></div>
+    <div class="card"><h2>Pollutants and weather</h2><p class="lead" id="polLead"></p><div id="pol"></div></div>
+    <div class="card"><h2>What's okay today?</h2><p class="lead">Quick traffic-light guide tuned to your household.</p><div class="acts" id="acts"></div></div>
+    <div class="card"><h2>Next 24 hours</h2><p class="lead" id="chartLead">Plan outdoor time around the cleaner hours.</p><svg class="chart" id="chart" role="img" aria-label="Hourly PM2.5 forecast"></svg><div class="legend" id="legend"></div></div>
+    <div class="card"><h2>5-day outlook</h2><p class="lead" id="weekLead">Pick the best days for outdoor events and airing the home.</p><div class="week" id="week"></div></div>
+    <div class="card"><h2>Today's routine</h2><div class="tl" id="timeline"></div></div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="view" id="v-plan">
+    <div class="card"><div class="plan-head">
+      <div class="ring"><svg viewBox="0 0 36 36" width="84" height="84"><circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--surface2)" stroke-width="3.4"/><circle id="ringArc" cx="18" cy="18" r="15.9" fill="none" stroke="var(--brand)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0 100" transform="rotate(-90 18 18)"/></svg><b id="ringTxt">0%</b></div>
+      <div style="flex:1;min-width:220px"><h2>Your clean-air plan</h2><p class="lead" style="margin:0" id="planLead">Tick what you do today. Progress resets each day.</p></div>
+      <div class="chips" id="catChips"></div>
+    </div></div>
+    <div class="card" id="planList"></div>
+  </section>
+
+  <!-- INDOOR -->
+  <section class="view" id="v-indoor">
+    <div class="cols">
+      <div class="card"><h2>Inside vs outside</h2><p class="lead">Estimated PM2.5 in a typical room under different setups.</p><div class="bars" id="indoorBars"></div><p class="note">Estimates only. Cooking, smoking and burning add to these numbers.</p></div>
+      <div class="card"><h2>Purifier size calculator</h2><p class="lead">Find the clean-air delivery rate (CADR) you need.</p>
+        <div class="grid2"><div><label class="f" for="rArea">Room area (m²)</label><input id="rArea" type="number" min="3" value="16"></div><div><label class="f" for="rH">Ceiling height (m)</label><input id="rH" type="number" min="2" step="0.1" value="2.6"></div></div>
+        <div class="result-box" id="cadr"></div></div>
+    </div>
+    <div class="card"><h2>📷 Smog Lens: photo check</h2><p class="lead">Snap your window, stove, kitchen, mask or street. The AI spots air-quality risks and the best fixes.</p>
+      <div class="row" style="flex-wrap:wrap"><input type="file" id="lensFile" accept="image/*" capture="environment" aria-label="Choose photo" style="flex:1;min-width:200px"><div class="grow" style="min-width:200px"><input id="lensQ" type="text" placeholder="Optional question, e.g. is this mask okay?"></div><button class="btn" id="lensGo">Analyse</button></div>
+      <img id="lensPrev" alt="Preview" class="hidden" style="max-width:240px;border-radius:12px;margin-top:12px"><div id="lensOut" class="ai-box hidden" style="white-space:pre-wrap"></div></div>
+    <div class="card"><h2>Room by room</h2><div class="cols" id="rooms"></div></div>
+    <div class="card"><h2>Myth check</h2><ul class="list" id="myths"></ul></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="view" id="v-about">
+    <div class="card"><h2>Data and method</h2><p class="lead">What is real, what is estimated, and where it comes from.</p>
+      <h3>Live data</h3><ul class="list">
+        <li><b>Air quality</b> (PM2.5, PM10, NO₂, O₃, SO₂, CO, US AQI, hourly forecast): Open-Meteo Air Quality API, built on Copernicus CAMS atmospheric model analyses and forecasts. It is a model, not a street-level sensor, so local readings can differ.</li>
+        <li><b>Weather and mixing height</b> (temperature, humidity, wind, boundary-layer height): Open-Meteo Forecast API. Low mixing height with calm wind marks a winter inversion, so smog is trapped.</li>
+        <li><b>Places:</b> Open-Meteo Geocoding API.</li></ul>
+      <h3>Standards</h3><ul class="list">
+        <li>Categories use the US EPA PM2.5 breakpoints (2024 update). Multiples compare to WHO 2021 24-hour guidelines: PM2.5 15, PM10 45, NO₂ 25, SO₂ 40 µg/m³.</li>
+        <li>"Cigarette equivalents" use the Berkeley Earth rule of thumb (22 µg/m³ over 24 hours ≈ 1 cigarette). It is a communication aid, not a medical measure.</li></ul>
+      <h3>Estimates (editable in the code)</h3><ul class="list">
+        <li>Indoor PM2.5 factors (80% windows open, 45% shut, 15% with purifier) are typical infiltration ranges from the literature, not measurements of your home.</li>
+        <li>Mask benefit assumes a fitted N95/FFP2/KN95 (≥94% filter efficiency, less with leakage).</li>
+        <li>CO₂ factors: car 0.17, motorbike 0.10, bus 0.09, metro 0.04 kg per passenger-km (typical published averages).</li>
+        <li>Corsi-Rosenthal box: independent university tests show clean-air delivery comparable to commercial HEPA units.</li>
+        <li>The what-if simulator is an illustrative dose model (concentration × hours × breathing rate).</li></ul>
+      <h3>AI</h3><p>Groq-hosted language models write explanations, translations, photo analysis and letters. They only receive the verified numbers above and are told not to invent figures. Always check important advice with a health professional. This tool is not medical advice.</p>
+      <h3>Privacy</h3><p>Your profile, tracker and settings stay in your browser. The server forwards your city coordinates to Open-Meteo, and your profile and questions to Groq to generate answers. Nothing is stored on the server.</p></div>
+  </section>
+
+  <!-- IMPACT -->
+  <section class="view" id="v-impact">
+    <div class="stats" id="impactStats"></div>
+    <div class="card"><h2>Your last 7 days</h2><p class="lead">Bar height is the day's plan completion; colour is that day's air quality.</p><svg class="chart" id="trend" role="img" aria-label="Seven day trend"></svg></div>
+    <div class="card"><h2>Badges</h2><div class="acts" id="badges"></div></div>
+    <div class="card"><h2>What-if simulator</h2><p class="lead">See how your choices change the particles you breathe in a day. An illustrative model, not a measurement.</p>
+      <div class="cols"><div>
+        <label class="f" for="sPm">Outdoor PM2.5 (µg/m³)</label><input id="sPm" type="number" min="0" value="100">
+        <label class="f" for="sOut">Hours outdoors per day: <b id="sOutV">3</b></label><input id="sOut" type="range" min="0" max="8" step="0.5" value="3" style="width:100%">
+        <label class="f" for="sCom">Commute hours per day: <b id="sComV">1</b></label><input id="sCom" type="range" min="0" max="4" step="0.25" value="1" style="width:100%">
+        <label class="f" for="sMode">Commute mode</label><select id="sMode"><option value="open">Open (bike, walk, motorbike)</option><option value="closed">Car, windows shut</option><option value="transit">Bus or metro</option></select>
+        <div class="chips"><button class="chip" id="sMask">😷 N95 outdoors</button><button class="chip" id="sShut">🪟 Windows shut</button><button class="chip" id="sPur">🌀 Purifier running</button><button class="chip" id="sTime">⏱ Go out at cleaner hour</button></div>
+      </div><div id="simOut"></div></div></div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section class="view" id="v-community">
+    <div class="card"><h2>Share today's air alert</h2><p class="lead">Send neighbours, school groups or family a short, accurate summary.</p>
+      <textarea id="shareText" rows="7" readonly></textarea>
+      <p><button class="btn" id="copyShare">Copy message</button> <button class="btn soft" id="nativeShare">Share…</button> <button class="btn line" id="printBtn">Print plan</button></p></div>
+    <div class="card"><h2>✉️ Ask for change: letter writer</h2><p class="lead">Generate a polite, fact-based letter to your school, landlord, employer or council.</p>
+      <div class="grid2"><div><label class="f" for="letKind">Write to</label><select id="letKind"><option value="school">School principal</option><option value="landlord">Landlord / housing society</option><option value="employer">Employer</option><option value="council">Local council</option></select></div><div><label class="f" for="letDet">Details (optional)</label><input id="letDet" type="text" placeholder="e.g. my son has asthma"></div></div>
+      <p><button class="btn" id="letGo">Write letter</button> <button class="btn soft hidden" id="letCopy">Copy</button></p><textarea id="letOut" rows="10" class="hidden"></textarea></div>
+    <div class="cols">
+      <div class="card"><h2>Look after each other</h2><ul class="list">
+        <li><b>Check in</b> on older neighbours and anyone with lung or heart conditions, especially on red-level days.</li>
+        <li><b>Open a clean-air room</b>: a community hall, library or school classroom with a purifier running.</li>
+        <li><b>Lend a hand</b> with masks, DIY purifier builds and weather-stripping for homes with limited means.</li>
+        <li><b>Spread the word</b> in parent and resident groups using the alert above.</li></ul></div>
+      <div class="card"><h2>Cut emissions together</h2><ul class="list">
+        <li><b>School-gate no-idling pledge:</b> engines off after 30 seconds.</li>
+        <li><b>Carpool or "walking bus"</b> on better-air days to lower traffic at school and work.</li>
+        <li><b>No open burning</b> of leaves, trash or crop residue. Report it to local authorities.</li>
+        <li><b>Clean-heating swaps:</b> group buys of insulation, heat pumps or clean stoves can cut costs.</li></ul></div>
+    </div>
+    <div class="card"><h2>When to get medical help</h2><p id="health"></p><p class="note">This tool gives general guidance, not medical advice. Call your local emergency number for severe breathing difficulty.</p></div>
+  </section>
+
+  <!-- ASK -->
+  <section class="view" id="v-ask">
+    <div class="card chat"><div><h2>Ask the coach</h2><p class="lead" id="chatLead">Questions about your plan, kids, masks, cooking, heating, anything about smog.</p></div>
+      <div id="chatlog"></div>
+      <div><div class="chips" id="suggest"></div><div class="row" style="margin-top:10px"><div class="grow"><input id="msg" type="text" placeholder="Type or speak your question…" aria-label="Your question"></div><button class="btn soft" id="mic" aria-label="Speak">🎤</button><button class="btn" id="send">Ask</button></div></div>
+    </div>
+  </section>
+</main>
+<footer><a href="#" id="aboutLink" style="color:var(--brand)">Data, method and privacy</a> · Air data from Open-Meteo (CAMS model estimates, not a certified monitor). Impact figures are rough guidance estimates. Not medical advice.</footer>
+
+<!-- ONBOARDING -->
+<div class="modal hidden" id="modal"><div class="sheet">
+  <div class="steps" id="steps"><i class="on"></i><i></i><i></i></div>
+  <div id="step1">
+    <h2>Where do you live?</h2><p class="note">We use this for live air quality and the hourly forecast.</p>
+    <div class="row"><div class="grow"><label class="f" for="q">City or town</label><input id="q" type="text" placeholder="e.g. Delhi, Krakow, Lahore, Beijing" autocomplete="off"></div><button class="btn soft" id="find">Search</button></div>
+    <div id="hits"></div>
+    <p><button class="btn line" id="geo">📍 Use my current location</button></p>
+    <p id="picked" style="font-weight:600"></p>
+    <label class="f" for="manual">No data for your area? Enter today's PM2.5 (µg/m³)</label><input id="manual" type="number" min="0" placeholder="Optional, overrides live data">
+  </div>
+  <div id="step2" class="hidden">
+    <h2>Who are we protecting?</h2><p class="note">Tap everyone who applies. This changes how cautious the advice is.</p>
+    <div class="chips" id="people">
+      <button class="chip" data-k="kids">👶 Children</button><button class="chip" data-k="elders">🧓 Older adults</button><button class="chip" data-k="asthma">🫁 Asthma / lung / heart condition</button><button class="chip" data-k="pregnant">🤰 Pregnancy</button><button class="chip" data-k="exercise">🏃 We exercise outdoors</button>
+    </div>
+    <label class="f" for="note">Anything else we should know? (optional)</label>
+    <input id="note" type="text" placeholder="e.g. we live on a busy road; baby sleeps in the front room">
+  </div>
+  <div id="step3" class="hidden">
+    <h2>Your home and travel</h2><p class="note">So the plan fits your life and budget.</p>
+    <div class="grid2">
+      <div><label class="f" for="heating">Heating</label><select id="heating"><option value="electric">Electric / heat pump</option><option value="gas">Gas</option><option value="wood">Wood</option><option value="coal">Coal</option><option value="kerosene">Kerosene</option><option value="district">District / none</option></select></div>
+      <div><label class="f" for="cooking">Cooking</label><select id="cooking"><option value="gas">Gas</option><option value="electric">Electric</option><option value="induction">Induction</option><option value="wood">Wood / biomass</option></select></div>
+      <div><label class="f" for="commute">Main transport</label><select id="commute"><option value="car">Car</option><option value="motorbike">Motorbike</option><option value="bus">Bus</option><option value="metro">Metro / train</option><option value="bike">Bicycle</option><option value="walk">Walking</option><option value="none">Work from home</option></select></div>
+      <div><label class="f" for="km">One-way commute (km)</label><input id="km" type="number" min="0" value="8"></div>
+      <div><label class="f" for="budget">Budget for fixes</label><select id="budget"><option value="low">Low: free / DIY</option><option value="medium" selected>Medium</option><option value="high">Flexible</option></select></div>
+    </div>
+    <div class="chips"><button class="chip" id="purifierChip" data-k="purifier">I already have an air purifier</button></div>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="sheet-foot"><button class="btn line" id="back">Back</button><button class="btn" id="next">Next</button></div>
+</div></div>
+
+<script src="/app.js"></script>
+<script src="/features.js"></script>
+</body>
+</html>

@@ -4,8 +4,8 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-const css = fs.readFileSync(path.join(__dirname, 'public', 'styles.css'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'styles.css'), 'utf8');
 const tags = (name) => [...html.matchAll(new RegExp(`<${name}\\b[^>]*>`, 'gi'))].map((m) => m[0]);
 const attr = (tag, a) => (tag.match(new RegExp(`\\s${a}="([^"]*)"`, 'i')) || [])[1];
 
@@ -35,7 +35,10 @@ test('every form control has an accessible name', () => {
 
 test('icon-only buttons have accessible names', () => {
   for (const b of html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)) {
-    const text = b[2].replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').trim();
+    const text = b[2]
+      .replace(/<svg[\s\S]*?<\/svg>/g, '')
+      .replace(/<[^>]+>/g, '')
+      .trim();
     assert.ok(text || /aria-label=|title=/.test(b[1]), 'unnamed button: ' + b[0].slice(0, 80));
   }
 });
@@ -59,4 +62,24 @@ test('css honours reduced motion, visible focus and forced colours', () => {
 
 test('no inline event handlers (CSP-safe)', () => {
   assert.ok(!/\son[a-z]+="/i.test(html), 'inline handler found');
+});
+
+test('page loads one ES module entry point and has exactly one h1', () => {
+  assert.match(html, /<script type="module" src="\/js\/main\.js"><\/script>/);
+  assert.equal([...html.matchAll(/<h1\b/g)].length, 1);
+});
+
+test('no inline styles or inline scripts anywhere (strict CSP)', () => {
+  assert.ok(!/\sstyle="/i.test(html), 'inline style attribute in HTML');
+  assert.ok(!/<style[\s>]/i.test(html), 'inline <style> block');
+  assert.ok(!/<script(?![^>]*\ssrc=)[^>]*>/i.test(html), 'inline script');
+  const walk = (dir) =>
+    fs
+      .readdirSync(dir, { withFileTypes: true })
+      .flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+  for (const file of walk(path.join(__dirname, '..', 'public', 'js')).filter((f) => f.endsWith('.js'))) {
+    const source = fs.readFileSync(file, 'utf8');
+    assert.ok(!/\sstyle="/.test(source), 'inline style attribute in a template: ' + file);
+    assert.ok(!/setAttribute\(\s*['"]style['"]/.test(source), 'setAttribute style in ' + file);
+  }
 });

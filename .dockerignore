@@ -1,0 +1,10 @@
+.env
+.git
+.github
+node_modules
+test
+*.md
+.editorconfig
+.prettierrc.json
+.prettierignore
+eslint.config.js

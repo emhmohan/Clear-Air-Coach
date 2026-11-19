@@ -4,32 +4,32 @@ A Groq-powered GenAI assistant that helps families and communities get through s
 
 ## Challenge alignment: Urban Air Quality Assistant
 
-| Requirement | How Clear Air Coach delivers it |
-|---|---|
-| **GenAI-powered assistant** | Groq-hosted LLMs write the personalised summary, tailor every action, answer questions (streaming chat), translate plans into 14 languages, analyse photos (vision) and draft advocacy letters |
-| **Severe winter smog and urban pollution** | Live PM2.5/PM10/NO₂/O₃/SO₂/CO, WHO-guideline multiples, and weather-based **inversion detection** (mixing height and wind), the physical cause of winter smog |
-| **Low-emission daily routines** | Cleanest-hour planner from the hourly forecast, traffic-light activity guide, 5-day outlook, daily routine timeline |
-| **Indoor air quality hacks** | Inside-vs-outside estimates, purifier (CADR) calculator, DIY Corsi-Rosenthal box, room-by-room guide, cooking and heating advice, Smog Lens photo check |
-| **Sustainable alternatives** | Heating swaps, transit/carpool with CO₂ saved, no-idling and community actions |
-| **Tailored to location and lifestyle** | City or GPS location; profile covers children, elders, asthma, pregnancy, heating, cooking, commute, budget |
-| **Explains the direct impact of choices** | Every action shows *impact* (what changes, by how much), *why it works* and *cost*; the what-if simulator quantifies combined effects |
+| Requirement                                | How Clear Air Coach delivers it                                                                                                                                                                |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GenAI-powered assistant**                | Groq-hosted LLMs write the personalised summary, tailor every action, answer questions (streaming chat), translate plans into 14 languages, analyse photos (vision) and draft advocacy letters |
+| **Severe winter smog and urban pollution** | Live PM2.5/PM10/NO₂/O₃/SO₂/CO, WHO-guideline multiples, and weather-based **inversion detection** (mixing height and wind), the physical cause of winter smog                                  |
+| **Low-emission daily routines**            | Cleanest-hour planner from the hourly forecast, traffic-light activity guide, 5-day outlook, daily routine timeline                                                                            |
+| **Indoor air quality hacks**               | Inside-vs-outside estimates, purifier (CADR) calculator, DIY Corsi-Rosenthal box, room-by-room guide, cooking and heating advice, Smog Lens photo check                                        |
+| **Sustainable alternatives**               | Heating swaps, transit/carpool with CO₂ saved, no-idling and community actions                                                                                                                 |
+| **Tailored to location and lifestyle**     | City or GPS location; profile covers children, elders, asthma, pregnancy, heating, cooking, commute, budget                                                                                    |
+| **Explains the direct impact of choices**  | Every action shows _impact_ (what changes, by how much), _why it works_ and _cost_; the what-if simulator quantifies combined effects                                                          |
 
 ## Features
 
-| Area | What it does |
-|---|---|
-| **Live data** | PM2.5, PM10, NO₂, O₃, SO₂, CO, AQI with WHO-guideline multiples; weather, wind and mixing height to flag winter inversions; 24h chart with the cleanest window; 5-day outlook (Open-Meteo, no key). See the in-app **Data and method** page for sources and limits |
-| **Personal plan** | Rules engine builds prioritised actions from household profile (kids, elders, asthma, heating, cooking, commute, budget), each with quantified impact and "why" |
-| **Groq GenAI** | Personalised summary, tailored actions, extra tips, week advice, fast **streaming chat** |
-| **Multilingual** | 14 languages: the whole plan is translated, UI flips to RTL for Arabic/Urdu |
-| **Smog Lens** | Upload a photo (window, stove, mask, street); Groq vision finds risks and fixes |
-| **What-if simulator** | Toggle mask, windows, purifier, timing and see % fewer particles inhaled, plus the biggest levers |
-| **Impact tracker** | Daily checklist, streaks, 7-day trend, CO₂ avoided, unlockable badges |
-| **Community** | One-tap shareable alert, AI **letter writer** (school, landlord, employer, council), printable plan |
-| **Accessibility** | Voice input and read-aloud, skip link, reduced motion, dark mode, mobile layout |
-| **Alerts & offline** | Browser notifications on smoggy days, PWA with offline shell and last-plan fallback |
-| **Simulation mode** | Clearly labelled what-if PM2.5 values (20 / 60 / 150 / 320). Never saved to the tracker |
-| **Safety & robustness** | Grounded prompts (no invented numbers), prompt-injection guard, CSP and security headers, rate limiting, caching, input validation, unit tests |
+| Area                    | What it does                                                                                                                                                                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Live data**           | PM2.5, PM10, NO₂, O₃, SO₂, CO, AQI with WHO-guideline multiples; weather, wind and mixing height to flag winter inversions; 24h chart with the cleanest window; 5-day outlook (Open-Meteo, no key). See the in-app **Data and method** page for sources and limits |
+| **Personal plan**       | Rules engine builds prioritised actions from household profile (kids, elders, asthma, heating, cooking, commute, budget), each with quantified impact and "why"                                                                                                    |
+| **Groq GenAI**          | Personalised summary, tailored actions, extra tips, week advice, fast **streaming chat**                                                                                                                                                                           |
+| **Multilingual**        | 14 languages: the whole plan is translated, UI flips to RTL for Arabic/Urdu                                                                                                                                                                                        |
+| **Smog Lens**           | Upload a photo (window, stove, mask, street); Groq vision finds risks and fixes                                                                                                                                                                                    |
+| **What-if simulator**   | Toggle mask, windows, purifier, timing and see % fewer particles inhaled, plus the biggest levers                                                                                                                                                                  |
+| **Impact tracker**      | Daily checklist, streaks, 7-day trend, CO₂ avoided, unlockable badges                                                                                                                                                                                              |
+| **Community**           | One-tap shareable alert, AI **letter writer** (school, landlord, employer, council), printable plan                                                                                                                                                                |
+| **Accessibility**       | Voice input and read-aloud, skip link, reduced motion, dark mode, mobile layout                                                                                                                                                                                    |
+| **Alerts & offline**    | Browser notifications on smoggy days, PWA with offline shell and last-plan fallback                                                                                                                                                                                |
+| **Simulation mode**     | Clearly labelled what-if PM2.5 values (20 / 60 / 150 / 320). Never saved to the tracker                                                                                                                                                                            |
+| **Safety & robustness** | Grounded prompts (no invented numbers), prompt-injection guard, CSP and security headers, rate limiting, caching, input validation, unit tests                                                                                                                     |
 
 ## Run
 
@@ -37,7 +37,8 @@ A Groq-powered GenAI assistant that helps families and communities get through s
 cp .env.example .env        # then put your key in GROQ_API_KEY (free at console.groq.com)
 node server.js              # http://localhost:3000
 npm test                    # engine, accessibility and live end-to-end tests (real Open-Meteo and Groq)
-npm run lint                # ESLint
+npm run check               # lint + format check + all tests
+npm run test:coverage       # tests with coverage
 ```
 
 PowerShell without a `.env`: `$env:GROQ_API_KEY="gsk_..."; node server.js`. Docker: `docker build -t clear-air . && docker run -p 3000:3000 -e GROQ_API_KEY=gsk_... clear-air`.
@@ -46,10 +47,7 @@ Without a key everything except AI personalisation, chat, photo analysis and let
 
 ## Layout
 
-- `engine.js`: deterministic facts and impact estimates (AQI bands, indoor estimates, CO₂, best-hour window)
-- `llm.js`: Groq client (completion, streaming, vision)
-- `server.js`: API (`/api/plan`, `/api/chat`, `/api/vision`, `/api/letter`, `/api/geocode`), limits, cache
-- `public/`: UI (`app.js` core, `features.js` extras, `sw.js` offline)
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full module map and data flow. In short: `server.js` (entry), `src/` (routes, engine, ai, services, http), `public/` (ES-module browser app), `test/`.
 
 ## Honest limits
 
@@ -61,6 +59,6 @@ Air data is model-based (CAMS via Open-Meteo), not a certified monitor. Impact n
 
 ## Deploy
 
-**Render (free, ~3 minutes):** New → *Blueprint* → pick this repo (it reads `render.yaml`) → set `GROQ_API_KEY` → Deploy. You get an HTTPS URL, which the PWA, geolocation, voice and notifications all need.
+**Render (free, ~3 minutes):** New → _Blueprint_ → pick this repo (it reads `render.yaml`) → set `GROQ_API_KEY` → Deploy. You get an HTTPS URL, which the PWA, geolocation, voice and notifications all need.
 
 **Anywhere with Docker** (Railway, Fly.io, Google Cloud Run, Azure, a VPS): `docker build -t clear-air . && docker run -p 3000:3000 -e GROQ_API_KEY=... -e TRUST_PROXY=1 clear-air`. Set `TRUST_PROXY=1` behind any load balancer so rate limits apply per visitor, not per proxy. Health check: `/api/status`.

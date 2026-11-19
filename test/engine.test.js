@@ -1,10 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFacts, levelFor } = require('./engine');
+const { buildFacts, levelFor } = require('../src/engine');
 
 test('AQI bands', () => {
   assert.equal(levelFor(5).name, 'Good');
-  assert.equal(levelFor(40).key, 2);
+  assert.equal(levelFor(40).index, 2);
   assert.equal(levelFor(400).name, 'Hazardous');
 });
 
@@ -29,7 +29,10 @@ test('coal heating triggers the heating swap; indoor estimates shrink with a pur
 });
 
 test('best window uses hourly data', () => {
-  const hourly = Array.from({ length: 14 }, (_, i) => ({ time: `2026-11-19T${String(i + 7).padStart(2, '0')}:00`, pm25: i === 5 ? 10 : 80 }));
+  const hourly = Array.from({ length: 14 }, (_, i) => ({
+    time: `2026-11-19T${String(i + 7).padStart(2, '0')}:00`,
+    pm25: i === 5 ? 10 : 80,
+  }));
   const f = buildFacts({ pm25: 80, hourly }, {});
   assert.ok(f.window.best.avg < f.window.worst.avg);
 });

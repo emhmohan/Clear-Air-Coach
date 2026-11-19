@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body><a class="skip" href="#main">Skip to content</a>
-<noscript><p style="padding:16px">Clear Air Coach needs JavaScript to show live air quality and your plan. Please enable it.</p></noscript>
+<noscript><p class="noscript-msg">Clear Air Coach needs JavaScript to show live air quality and your plan. Please enable it.</p></noscript>
 <div class="app">
 <aside class="side">
   <div class="logo"><img src="/icon.svg" alt=""><span>Clear Air<br>Coach</span></div>
@@ -36,17 +36,18 @@
 <div class="content">
 
 <main id="main" tabindex="-1" aria-busy="false">
+  <h1 class="sr">Clear Air Coach: live air quality and your clean-air plan</h1>
   <div id="loading" class="skeleton hidden"></div>
-  <div id="banner" class="banner hidden" style="margin-bottom:14px" role="status" aria-live="polite"></div>
+  <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
 
   <!-- TODAY -->
   <section class="view on" id="v-today" aria-label="Today">
-    <div class="card" style="padding:12px 16px"><div class="row" style="flex-wrap:wrap;align-items:center"><b class="note" style="margin-right:4px">Simulate smog (what if PM2.5 were…)</b><div class="chips" id="scenarios" style="margin:0"></div><span style="flex:1"></span><button class="btn soft" id="speak">🔊 Read aloud</button><button class="btn soft" id="notify">🔔 Alerts</button></div></div>
+    <div class="card tight"><div class="row wrap center"><b class="note label-inline">Simulate smog (what if PM2.5 were…)</b><div class="chips flush" id="scenarios"></div><span class="spacer"></span><button class="btn soft" id="speak">🔊 Read aloud</button><button class="btn soft" id="notify">🔔 Alerts</button></div></div>
     <div class="card hero" id="hero"></div>
     <div class="stats" id="stats" role="group" aria-label="Key numbers"></div>
     <div class="card"><h2>Pollutants and weather</h2><p class="lead" id="polLead"></p><div id="pol"></div></div>
     <div class="card"><h2>What's okay today?</h2><p class="lead">Quick traffic-light guide tuned to your household.</p><div class="acts" id="acts"></div></div>
-    <div class="card"><h2>Next 24 hours</h2><p class="lead" id="chartLead">Plan outdoor time around the cleaner hours.</p><svg class="chart" id="chart" role="img" aria-label="Hourly PM2.5 forecast"></svg><p class="sr" id="chartSr"></p><div class="legend" id="legend"></div></div>
+    <div class="card"><h2>Next 24 hours</h2><p class="lead" id="chartLead">Plan outdoor time around the cleaner hours.</p><svg class="chart" id="chart" role="img" aria-label="Hourly PM2.5 forecast"></svg><div class="legend" id="legend"></div></div>
     <div class="card"><h2>5-day outlook</h2><p class="lead" id="weekLead">Pick the best days for outdoor events and airing the home.</p><div class="week" id="week"></div></div>
     <div class="card"><h2>Today's routine</h2><div class="tl" id="timeline"></div></div>
   </section>
@@ -55,7 +56,7 @@
   <section class="view" id="v-plan" aria-label="My plan">
     <div class="card"><div class="plan-head">
       <div class="ring"><svg viewBox="0 0 36 36" width="84" height="84"><circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--surface2)" stroke-width="3.4"/><circle id="ringArc" cx="18" cy="18" r="15.9" fill="none" stroke="var(--brand)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0 100" transform="rotate(-90 18 18)"/></svg><b id="ringTxt">0%</b></div>
-      <div style="flex:1;min-width:220px"><h2>Your clean-air plan</h2><p class="lead" style="margin:0" id="planLead">Tick what you do today. Progress resets each day.</p></div>
+      <div class="grow-min"><h2>Your clean-air plan</h2><p class="lead flush" id="planLead">Tick what you do today. Progress resets each day.</p></div>
       <div class="chips" id="catChips"></div>
     </div></div>
     <div class="card" id="planList"></div>
@@ -70,8 +71,8 @@
         <div class="result-box" id="cadr"></div></div>
     </div>
     <div class="card"><h2>📷 Smog Lens: photo check</h2><p class="lead">Snap your window, stove, kitchen, mask or street. The AI spots air-quality risks and the best fixes.</p>
-      <div class="row" style="flex-wrap:wrap"><input type="file" id="lensFile" accept="image/*" capture="environment" aria-label="Choose photo" style="flex:1;min-width:200px"><div class="grow" style="min-width:200px"><input id="lensQ" type="text" aria-label="Optional question about the photo" placeholder="Optional question, e.g. is this mask okay?"></div><button class="btn" id="lensGo">Analyse</button></div>
-      <img id="lensPrev" alt="Preview" class="hidden" style="max-width:240px;border-radius:12px;margin-top:12px"><div id="lensOut" class="ai-box hidden" style="white-space:pre-wrap"></div></div>
+      <div class="row wrap"><input type="file" id="lensFile" accept="image/*" capture="environment" aria-label="Choose photo" class="file-input"><div class="grow min200"><input id="lensQ" type="text" aria-label="Optional question about the photo" placeholder="Optional question, e.g. is this mask okay?"></div><button class="btn" id="lensGo">Analyse</button></div>
+      <img id="lensPrev" alt="Preview" class="hidden lens-prev"><div id="lensOut" class="ai-box hidden pre-wrap"></div></div>
     <div class="card"><h2>Room by room</h2><div class="cols" id="rooms"></div></div>
     <div class="card"><h2>Myth check</h2><ul class="list" id="myths"></ul></div>
   </section>
@@ -104,10 +105,10 @@
     <div class="card"><h2>What-if simulator</h2><p class="lead">See how your choices change the particles you breathe in a day. An illustrative model, not a measurement.</p>
       <div class="cols"><div>
         <label class="f" for="sPm">Outdoor PM2.5 (µg/m³)</label><input id="sPm" type="number" min="0" value="100">
-        <label class="f" for="sOut">Hours outdoors per day: <b id="sOutV">3</b></label><input id="sOut" type="range" min="0" max="8" step="0.5" value="3" style="width:100%">
-        <label class="f" for="sCom">Commute hours per day: <b id="sComV">1</b></label><input id="sCom" type="range" min="0" max="4" step="0.25" value="1" style="width:100%">
+        <label class="f" for="sOut">Hours outdoors per day: <b id="sOutV">3</b></label><input id="sOut" type="range" min="0" max="8" step="0.5" value="3">
+        <label class="f" for="sCom">Commute hours per day: <b id="sComV">1</b></label><input id="sCom" type="range" min="0" max="4" step="0.25" value="1">
         <label class="f" for="sMode">Commute mode</label><select id="sMode"><option value="open">Open (bike, walk, motorbike)</option><option value="closed">Car, windows shut</option><option value="transit">Bus or metro</option></select>
-        <div class="chips"><button class="chip" id="sMask">😷 N95 outdoors</button><button class="chip" id="sShut">🪟 Windows shut</button><button class="chip" id="sPur">🌀 Purifier running</button><button class="chip" id="sTime">⏱ Go out at cleaner hour</button></div>
+        <div class="chips"><button class="chip" id="sMask" aria-pressed="false">😷 N95 outdoors</button><button class="chip" id="sShut" aria-pressed="false">🪟 Windows shut</button><button class="chip" id="sPur" aria-pressed="false">🌀 Purifier running</button><button class="chip" id="sTime" aria-pressed="false">⏱ Go out at cleaner hour</button></div>
       </div><div id="simOut"></div></div></div>
   </section>
 
@@ -138,11 +139,11 @@
   <section class="view" id="v-ask" aria-label="Ask the coach">
     <div class="card chat"><div><h2>Ask the coach</h2><p class="lead" id="chatLead">Questions about your plan, kids, masks, cooking, heating, anything about smog.</p></div>
       <div id="chatlog" role="log" aria-live="polite" aria-label="Conversation"></div>
-      <div><div class="chips" id="suggest"></div><div class="row" style="margin-top:10px"><div class="grow"><input id="msg" type="text" placeholder="Type or speak your question…" aria-label="Your question"></div><button class="btn soft" id="mic" aria-label="Speak">🎤</button><button class="btn" id="send">Ask</button></div></div>
+      <div><div class="chips" id="suggest"></div><div class="row spaced"><div class="grow"><input id="msg" type="text" placeholder="Type or speak your question…" aria-label="Your question"></div><button class="btn soft" id="mic" aria-label="Speak">🎤</button><button class="btn" id="send">Ask</button></div></div>
     </div>
   </section>
 </main>
-<footer><a href="#" id="aboutLink" style="color:var(--brand)">Data, method and privacy</a> · Air data from Open-Meteo (CAMS model estimates, not a certified monitor). Impact figures are rough guidance estimates. Not medical advice.</footer>
+<footer><a href="#" id="aboutLink">Data, method and privacy</a> · Air data from Open-Meteo (CAMS model estimates, not a certified monitor). Impact figures are rough guidance estimates. Not medical advice.</footer>
 </div></div>
 
 <!-- ONBOARDING -->
@@ -153,7 +154,7 @@
     <div class="row"><div class="grow"><label class="f" for="q">City or town</label><input id="q" type="text" placeholder="e.g. Delhi, Krakow, Lahore, Beijing" autocomplete="off"></div><button class="btn soft" id="find">Search</button></div>
     <div id="hits"></div>
     <p><button class="btn line" id="geo">📍 Use my current location</button></p>
-    <p id="picked" style="font-weight:600"></p>
+    <p id="picked"></p>
     <label class="f" for="manual">No data for your area? Enter today's PM2.5 (µg/m³)</label><input id="manual" type="number" min="0" placeholder="Optional, overrides live data">
   </div>
   <div id="step2" class="hidden">
@@ -179,7 +180,6 @@
   <div class="sheet-foot"><button class="btn line" id="back">Back</button><button class="btn" id="next">Next</button></div>
 </div></div>
 
-<script src="/app.js"></script>
-<script src="/features.js"></script>
+<script type="module" src="/js/main.js"></script>
 </body>
 </html>

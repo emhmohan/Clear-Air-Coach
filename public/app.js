@@ -34,10 +34,10 @@ $('theme').onclick = () => applyTheme(document.documentElement.dataset.theme ===
 
 function show(v) {
   document.querySelectorAll('.view').forEach((s) => s.classList.toggle('on', s.id === 'v-' + v));
-  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+  document.querySelectorAll('.side [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
   window.scrollTo({ top: 0 });
 }
-$('nav').onclick = (e) => { if (e.target.dataset.v) show(e.target.dataset.v); };
+document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) show(b.dataset.v); });
 $('aboutLink').onclick = (e) => { e.preventDefault(); show('about'); };
 
 /* ---------- onboarding ---------- */

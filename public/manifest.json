@@ -3,7 +3,7 @@
   "short_name": "Clear Air",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f1b1d",
-  "theme_color": "#0f766e",
+  "background_color": "#12093f",
+  "theme_color": "#3b27b8",
   "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
 }
